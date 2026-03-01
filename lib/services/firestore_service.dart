@@ -36,27 +36,27 @@ class FirestoreService {
   }
 
   Stream<List<Issue>> getAllIssues() {
-    return _db.collection('issues').orderBy('createdAt', descending: true).snapshots().map(
-          (snapshot) => snapshot.docs.map((doc) => Issue.fromMap(doc.id, doc.data())).toList(),
-        );
+    return _db.collection('issues').snapshots().map((snapshot) {
+      final issues = snapshot.docs.map((doc) => Issue.fromMap(doc.id, doc.data())).toList();
+      issues.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return issues;
+    });
   }
 
   Stream<List<Issue>> getIssuesByStatus(String status) {
-    return _db
-        .collection('issues')
-        .where('status', isEqualTo: status)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => Issue.fromMap(doc.id, doc.data())).toList());
+    return _db.collection('issues').where('status', isEqualTo: status).snapshots().map((snapshot) {
+      final issues = snapshot.docs.map((doc) => Issue.fromMap(doc.id, doc.data())).toList();
+      issues.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return issues;
+    });
   }
 
   Stream<List<Issue>> getIssuesByCategory(String category) {
-    return _db
-        .collection('issues')
-        .where('category', isEqualTo: category)
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.map((doc) => Issue.fromMap(doc.id, doc.data())).toList());
+    return _db.collection('issues').where('category', isEqualTo: category).snapshots().map((snapshot) {
+      final issues = snapshot.docs.map((doc) => Issue.fromMap(doc.id, doc.data())).toList();
+      issues.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return issues;
+    });
   }
 
   Future<void> updateIssueStatus(String id, String status, String updatedBy, String message) async {

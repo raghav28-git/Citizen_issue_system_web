@@ -46,18 +46,27 @@ class Issue {
   }
 
   factory Issue.fromMap(String id, Map<String, dynamic> map) {
+    GeoPoint? location;
+    try {
+      if (map['location'] is GeoPoint) {
+        location = map['location'];
+      }
+    } catch (e) {
+      location = null;
+    }
+
     return Issue(
       id: id,
-      ticketId: map['ticketId'],
-      title: map['title'],
-      description: map['description'],
-      category: map['category'],
-      location: map['location'],
-      status: map['status'],
-      reportedBy: map['reportedBy'],
+      ticketId: map['ticketId'] ?? '',
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      category: map['category'] ?? 'Other',
+      location: location,
+      status: map['status'] ?? 'Reported',
+      reportedBy: map['reportedBy'] ?? '',
       assignedTo: map['assignedTo'],
-      createdAt: DateTime.parse(map['createdAt']),
-      updatedAt: DateTime.parse(map['updatedAt']),
+      createdAt: map['createdAt'] != null ? DateTime.parse(map['createdAt']) : DateTime.now(),
+      updatedAt: map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : DateTime.now(),
       imageUrl: map['imageUrl'],
     );
   }

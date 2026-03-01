@@ -271,13 +271,10 @@ class LandingPage extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 100, horizontal: 80),
       decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/splash/road-construction-teamwork-asphalt-laying-work-at-road-construction-sites-hot-asphalt-gravel-being-leveled-and-road-surface-repairs-by-heavy-road-construction-machineries-and-workers-photo.jpg'),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.black.withOpacity(0.7),
-            BlendMode.darken,
-          ),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1E293B), Color(0xFF334155)],
         ),
       ),
       child: Column(

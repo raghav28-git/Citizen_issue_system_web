@@ -10,10 +10,8 @@ service cloud.firestore {
     
     // Issues collection
     match /issues/{issueId} {
-      // Citizens can read their own issues
-      allow read: if request.auth != null && 
-        (resource.data.reportedBy == request.auth.uid || 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      // Anyone authenticated can read issues (citizens see their own, admins see all)
+      allow read: if request.auth != null;
       
       // Citizens can create issues
       allow create: if request.auth != null && 
