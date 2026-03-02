@@ -20,7 +20,7 @@ jobs:
         channel: 'stable'
     
     - run: flutter pub get
-    - run: flutter build web --release --base-href "/citizen_issue_system_web/"
+    - run: flutter build web --release --web-renderer canvaskit
     
     - uses: peaceiris/actions-gh-pages@v3
       with:

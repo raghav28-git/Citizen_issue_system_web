@@ -41,11 +41,19 @@
 </head>
 <body>
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('flutter-first-frame', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js');
+    window.addEventListener('load', function(ev) {
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: null,
+        },
+        onEntrypointLoaded: async function(engineInitializer) {
+          let appRunner = await engineInitializer.initializeEngine({
+            renderer: "canvaskit",
+          });
+          await appRunner.runApp();
+        }
       });
-    }
+    });
   </script>
   <script src="flutter.js" defer></script>
 </body>
