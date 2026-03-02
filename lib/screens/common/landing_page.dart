@@ -1,141 +1,210 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:google_fonts/google_fonts.dart';
 
-class LandingPage extends StatelessWidget {
+class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
+
+  @override
+  State<LandingPage> createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage> {
+  final _howItWorksKey = GlobalKey();
+  final _aboutKey = GlobalKey();
+  final _scrollController = ScrollController();
+  bool _isScrolled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 600 && !_isScrolled) {
+        setState(() => _isScrolled = true);
+      } else if (_scrollController.offset <= 600 && _isScrolled) {
+        setState(() => _isScrolled = false);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: Duration(milliseconds: 800),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _scrollToHowItWorks() {
+    Scrollable.ensureVisible(
+      _howItWorksKey.currentContext!,
+      duration: Duration(milliseconds: 800),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _scrollToAbout() {
+    Scrollable.ensureVisible(
+      _aboutKey.currentContext!,
+      duration: Duration(milliseconds: 800),
+      curve: Curves.easeInOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFF8FAFC), Color(0xFFEEF2FF), Color(0xFFF1F5F9)],
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(
+              children: [
+                SizedBox(height: _isScrolled ? 70 : 80),
+                _buildHeroSection(context),
+                _buildFeaturesSection(),
+                _buildAboutSection(),
+                _buildHowItWorksSection(),
+                _buildStatsSection(),
+                _buildFooter(),
+              ],
+            ),
           ),
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildNavBar(context),
-              _buildHeroSection(context),
-              _buildFeaturesSection(),
-              _buildHowItWorksSection(),
-              _buildStatsSection(),
-              _buildCTASection(context),
-              _buildFooter(),
-            ],
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _buildNavBar(context),
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildNavBar(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(40, 20, 40, 0),
-      padding: EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 200),
+      padding: EdgeInsets.symmetric(horizontal: 80, vertical: _isScrolled ? 12 : 20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.white.withOpacity(0.95), Colors.white.withOpacity(0.85)],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: Offset(0, 8)),
-        ],
+        color: _isScrolled ? Colors.white : Color(0xFF1E293B),
+        boxShadow: _isScrolled ? [
+          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 15, offset: Offset(0, 2)),
+        ] : [],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(12),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Image.asset(
+                  'assets/splash/logo.png',
+                  height: 40,
+                ),
+              ),
+              SizedBox(width: 12),
+              Text(
+                'CityCare',
+                style: GoogleFonts.inter(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: _isScrolled ? Color(0xFF0F172A) : Colors.white,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              _buildNavItem('Home', _scrollToTop),
+              SizedBox(width: 48),
+              _buildNavItem('About', _scrollToAbout),
+              SizedBox(width: 48),
+              _buildNavItem('How it Works', _scrollToHowItWorks),
+            ],
+          ),
+          Row(
+            children: [
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, '/login'),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFEFF6FF),
+                      border: Border.all(color: Color(0xFF93C5FD), width: 1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      'Log In',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF1E40AF),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12),
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, '/login'),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(colors: [Color(0xFF4F46E5), Color(0xFF6366F1)]),
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(10),
                       boxShadow: [
                         BoxShadow(color: Color(0xFF4F46E5).withOpacity(0.3), blurRadius: 12, offset: Offset(0, 4)),
                       ],
                     ),
-                    child: Icon(Icons.location_city, color: Colors.white, size: 28),
-                  ),
-                  SizedBox(width: 16),
-                  ShaderMask(
-                    shaderCallback: (bounds) => LinearGradient(
-                      colors: [Color(0xFF1E293B), Color(0xFF4F46E5)],
-                    ).createShader(bounds),
                     child: Text(
-                      'CityCare',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w900,
+                      'Sign Up',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
                         color: Colors.white,
-                        letterSpacing: -0.8,
                       ),
                     ),
                   ),
-                ],
-              ),
-              Row(
-                children: [
-                  _buildNavItem('Home'),
-                  SizedBox(width: 40),
-                  _buildNavItem('About'),
-                  SizedBox(width: 40),
-                  _buildNavItem('How it Works'),
-                  SizedBox(width: 40),
-                  _buildNavItem('Contact'),
-                  SizedBox(width: 40),
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => Navigator.pushNamed(context, '/login'),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [Color(0xFF4F46E5), Color(0xFF6366F1)]),
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(color: Color(0xFF4F46E5).withOpacity(0.3), blurRadius: 12, offset: Offset(0, 4)),
-                          ],
-                        ),
-                        child: Text(
-                          'Login / Sign Up',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildNavItem(String title) {
+  Widget _buildNavItem(String title, VoidCallback? onTap) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF475569),
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 200),
+          child: Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: _isScrolled ? Color(0xFF475569) : Colors.white,
+            ),
+          ),
         ),
       ),
     );
@@ -143,6 +212,9 @@ class LandingPage extends StatelessWidget {
 
   Widget _buildHeroSection(BuildContext context) {
     return Container(
+      decoration: BoxDecoration(
+        color: Color(0xFF1E293B),
+      ),
       constraints: BoxConstraints(minHeight: 600),
       padding: EdgeInsets.symmetric(vertical: 120, horizontal: 80),
       child: Row(
@@ -151,26 +223,9 @@ class LandingPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [Color(0xFF4F46E5).withOpacity(0.1), Color(0xFF6366F1).withOpacity(0.1)]),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Color(0xFF4F46E5).withOpacity(0.3)),
-                  ),
-                  child: Text(
-                    '🏙️ Smart Civic Reporting Platform',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF4F46E5),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 32),
                 ShaderMask(
                   shaderCallback: (bounds) => LinearGradient(
-                    colors: [Color(0xFF1E293B), Color(0xFF4F46E5)],
+                    colors: [Colors.white, Color(0xFF94A3B8)],
                   ).createShader(bounds),
                   child: Text(
                     'Report City Issues\nMake Your City Better',
@@ -188,7 +243,7 @@ class LandingPage extends StatelessWidget {
                   'Join thousands of citizens helping improve urban infrastructure.\nReport issues, track progress, and see real change in your community.',
                   style: TextStyle(
                     fontSize: 20,
-                    color: Color(0xFF64748B),
+                    color: Color(0xFF94A3B8),
                     fontWeight: FontWeight.w500,
                     height: 1.6,
                   ),
@@ -271,11 +326,7 @@ class LandingPage extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 100, horizontal: 80),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1E293B), Color(0xFF334155)],
-        ),
+        color: Color(0xFF1E293B),
       ),
       child: Column(
         children: [
@@ -310,11 +361,10 @@ class LandingPage extends StatelessWidget {
 
   Widget _buildHowItWorksSection() {
     return Container(
+      key: _howItWorksKey,
       padding: EdgeInsets.symmetric(vertical: 100, horizontal: 80),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFF8FAFC), Color(0xFFEEF2FF)],
-        ),
+        color: Color(0xFF1E293B),
       ),
       child: Column(
         children: [
@@ -323,7 +373,7 @@ class LandingPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 48,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF1E293B),
+              color: Colors.white,
               letterSpacing: -1,
             ),
           ),
@@ -347,9 +397,71 @@ class LandingPage extends StatelessWidget {
     );
   }
 
+  Widget _buildAboutSection() {
+    return Container(
+      key: _aboutKey,
+      padding: EdgeInsets.symmetric(vertical: 100, horizontal: 80),
+      decoration: BoxDecoration(
+        color: Color(0xFF1E293B),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'About CityCare',
+            style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: -1),
+          ),
+          SizedBox(height: 32),
+          Container(
+            constraints: BoxConstraints(maxWidth: 800),
+            child: Text(
+              'CityCare is a revolutionary platform that bridges the gap between citizens and local authorities. We empower communities to report civic issues quickly and efficiently, ensuring that every voice is heard and every problem gets the attention it deserves.',
+              style: TextStyle(fontSize: 20, color: Color(0xFF94A3B8), height: 1.8),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          SizedBox(height: 48),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildAboutCard(Icons.speed_rounded, 'Fast Response', 'Issues resolved within 48 hours on average'),
+              SizedBox(width: 32),
+              _buildAboutCard(Icons.verified_user_rounded, 'Verified Updates', 'Real-time tracking with official confirmations'),
+              SizedBox(width: 32),
+              _buildAboutCard(Icons.people_rounded, 'Community Driven', 'Powered by active citizen participation'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAboutCard(IconData icon, String title, String description) {
+    return Container(
+      width: 280,
+      padding: EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Color(0xFF334155)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 48, color: Colors.white),
+          SizedBox(height: 20),
+          Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
+          SizedBox(height: 12),
+          Text(description, style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)), textAlign: TextAlign.center),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStatsSection() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 80, horizontal: 80),
+      decoration: BoxDecoration(
+        color: Color(0xFF1E293B),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -357,65 +469,6 @@ class LandingPage extends StatelessWidget {
           _buildStatItem('8.5K+', 'Issues Resolved'),
           _buildStatItem('5K+', 'Active Users'),
           _buildStatItem('95%', 'Satisfaction Rate'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCTASection(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 80, vertical: 60),
-      padding: EdgeInsets.all(80),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [Color(0xFF4F46E5), Color(0xFF6366F1)]),
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(color: Color(0xFF4F46E5).withOpacity(0.3), blurRadius: 30, offset: Offset(0, 15)),
-        ],
-      ),
-      child: Column(
-        children: [
-          Text(
-            'Ready to Make a Difference?',
-            style: TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-              letterSpacing: -1,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 20),
-          Text(
-            'Join our community and help improve your city today',
-            style: TextStyle(fontSize: 20, color: Colors.white.withOpacity(0.9)),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 40),
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/login'),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 48, vertical: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20, offset: Offset(0, 8)),
-                  ],
-                ),
-                child: Text(
-                  'Start Reporting Now',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF4F46E5),
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -465,11 +518,9 @@ class LandingPage extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(32),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.white.withOpacity(0.9), Colors.white.withOpacity(0.7)],
-        ),
+        color: Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: Color(0xFF334155)),
         boxShadow: [
           BoxShadow(color: colors[0].withOpacity(0.1), blurRadius: 20, offset: Offset(0, 8)),
         ],
@@ -485,9 +536,9 @@ class LandingPage extends StatelessWidget {
             child: Icon(icon, size: 40, color: Colors.white),
           ),
           SizedBox(height: 24),
-          Text(title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+          Text(title, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white)),
           SizedBox(height: 12),
-          Text(description, style: TextStyle(fontSize: 15, color: Color(0xFF64748B)), textAlign: TextAlign.center),
+          Text(description, style: TextStyle(fontSize: 15, color: Color(0xFF94A3B8)), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -498,8 +549,9 @@ class LandingPage extends StatelessWidget {
       width: 280,
       padding: EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Color(0xFF334155)),
         boxShadow: [
           BoxShadow(color: colors[0].withOpacity(0.1), blurRadius: 20, offset: Offset(0, 8)),
         ],
@@ -515,9 +567,9 @@ class LandingPage extends StatelessWidget {
             child: Icon(icon, size: 40, color: Colors.white),
           ),
           SizedBox(height: 20),
-          Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+          Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white)),
           SizedBox(height: 12),
-          Text(description, style: TextStyle(fontSize: 14, color: Color(0xFF64748B)), textAlign: TextAlign.center),
+          Text(description, style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)), textAlign: TextAlign.center),
         ],
       ),
     );
@@ -536,7 +588,7 @@ class LandingPage extends StatelessWidget {
           ),
         ),
         SizedBox(height: 8),
-        Text(label, style: TextStyle(fontSize: 18, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+        Text(label, style: TextStyle(fontSize: 18, color: Color(0xFF94A3B8), fontWeight: FontWeight.w600)),
       ],
     );
   }

@@ -47,8 +47,23 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
-    await _authService.signOut();
-    _currentUser = null;
-    notifyListeners();
+    try {
+      await _authService.signOut();
+      _currentUser = null;
+      notifyListeners();
+    } catch (e) {
+      print('SignOut error: $e');
+    }
+  }
+
+  Future<bool> signInWithGoogle() async {
+    try {
+      _currentUser = await _authService.signInWithGoogle();
+      notifyListeners();
+      return _currentUser != null;
+    } catch (e) {
+      print('AuthProvider Google signIn error: $e');
+      return false;
+    }
   }
 }

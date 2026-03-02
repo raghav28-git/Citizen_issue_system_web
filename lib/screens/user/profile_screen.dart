@@ -124,40 +124,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(height: 24),
               Divider(color: Color(0xFFE2E8F0)),
               SizedBox(height: 24),
-              _buildInfoField(
-                icon: Icons.person_rounded,
-                label: 'Full Name',
-                controller: _nameController,
-              ),
-              SizedBox(height: 16),
-              _buildInfoField(
-                icon: Icons.email_rounded,
-                label: 'Email',
-                value: authProvider.currentUser?.email ?? '',
-                readOnly: true,
-              ),
-              SizedBox(height: 16),
-              _buildInfoField(
-                icon: Icons.phone_rounded,
-                label: 'Phone Number',
-                controller: _phoneController,
-                hint: 'Enter phone number (optional)',
-              ),
-              SizedBox(height: 16),
-              _buildInfoField(
-                icon: Icons.location_city_rounded,
-                label: 'City / Area',
-                controller: _cityController,
-                hint: 'Enter your city (optional)',
-              ),
-              SizedBox(height: 16),
               _buildInfoRow(
                 icon: Icons.calendar_today_rounded,
                 label: 'Member Since',
                 value: DateFormat('MMMM dd, yyyy').format(authProvider.currentUser?.createdAt ?? DateTime.now()),
               ),
-              SizedBox(height: 24),
-              _buildSaveButton(),
             ],
           ),
         ),
@@ -326,16 +297,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               SizedBox(height: 20),
-              _buildActionButton('Change Password', Icons.lock_rounded, Color(0xFF4F46E5), () {}),
+              _buildActionButton('Change Password', Icons.lock_rounded, Color(0xFF64748B), null, enabled: false),
               SizedBox(height: 12),
-              _buildActionButton('Update Profile Info', Icons.edit_rounded, Color(0xFF10B981), () {}),
+              _buildActionButton('Update Profile Info', Icons.edit_rounded, Color(0xFF64748B), null, enabled: false),
               SizedBox(height: 12),
-              _buildActionButton('Logout', Icons.logout_rounded, Color(0xFFF59E0B), () async {
+              _buildActionButton('Logout', Icons.logout_rounded, Color(0xFFEF4444), () async {
                 await authProvider.signOut();
-                if (context.mounted) Navigator.pushReplacementNamed(context, '/');
               }),
               SizedBox(height: 12),
-              _buildActionButton('Delete Account', Icons.delete_forever_rounded, Color(0xFFEF4444), () => _showDeleteDialog()),
+              _buildActionButton('Delete Account', Icons.delete_forever_rounded, Color(0xFF64748B), null, enabled: false),
             ],
           ),
         ),
@@ -439,26 +409,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionButton(String label, IconData icon, Color color, VoidCallback? onTap, {bool enabled = true}) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
+      cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
       child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.3)),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: color, size: 20),
-              SizedBox(width: 12),
-              Text(label, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: color)),
-              Spacer(),
-              Icon(Icons.arrow_forward_ios_rounded, color: color, size: 16),
-            ],
+        onTap: enabled ? onTap : null,
+        child: Opacity(
+          opacity: enabled ? 1.0 : 0.5,
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: color.withOpacity(0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(icon, color: color, size: 20),
+                SizedBox(width: 12),
+                Text(label, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: color)),
+                Spacer(),
+                Icon(Icons.arrow_forward_ios_rounded, color: color, size: 16),
+              ],
+            ),
           ),
         ),
       ),

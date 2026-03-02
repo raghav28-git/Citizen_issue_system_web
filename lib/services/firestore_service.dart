@@ -127,4 +127,26 @@ class FirestoreService {
   Future<void> deleteIssue(String id) async {
     await _db.collection('issues').doc(id).delete();
   }
+
+  Stream<List<IssueUpdate>> getUserNotifications(String userId) {
+    return _db
+        .collection('issues')
+        .where('reportedBy', isEqualTo: userId)
+        .snapshots()
+        .asyncMap((issuesSnapshot) async {
+      final issueIds = issuesSnapshot.docs.map((doc) => doc.id).toList();
+      if (issueIds.isEmpty) return <IssueUpdate>[];
+      
+      final updatesSnapshot = await _db
+          .collection('issue_updates')
+          .where('issueId', whereIn: issueIds)
+          .orderBy('timestamp', descending: true)
+          .limit(20)
+          .get();
+      
+      return updatesSnapshot.docs
+          .map((doc) => IssueUpdate.fromMap(doc.id, doc.data()))
+          .toList();
+    });
+  }
 }
