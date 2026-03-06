@@ -17,34 +17,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLogin = true;
   bool _isLoading = false;
 
-  Future<void> _signInWithGoogle() async {
-    setState(() => _isLoading = true);
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
-    try {
-      bool success = await authProvider.signInWithGoogle();
-      setState(() => _isLoading = false);
-
-      if (success && mounted) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Google sign-in failed. Please try again.'),
-            backgroundColor: Color(0xFFEF4444),
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Color(0xFFEF4444)),
-        );
-      }
-    }
-  }
-
   Future<void> _submit() async {
     if (_emailController.text.trim().isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -301,51 +273,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ),
-                        SizedBox(height: 32),
-                        Row(
-                          children: [
-                            Expanded(child: Divider(color: Color(0xFFE2E8F0))),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                'OR',
-                                style: TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.w600),
-                              ),
-                            ),
-                            Expanded(child: Divider(color: Color(0xFFE2E8F0))),
-                          ],
-                        ),
-                        SizedBox(height: 32),
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: _signInWithGoogle,
-                            child: Container(
-                              width: double.infinity,
-                              padding: EdgeInsets.symmetric(vertical: 18),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(color: Color(0xFFE2E8F0), width: 2),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.g_mobiledata_rounded, size: 24, color: Color(0xFF4285F4)),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Continue with Google',
-                                    style: TextStyle(
-                                      color: Color(0xFF1E293B),
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
                         SizedBox(height: 24),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

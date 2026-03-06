@@ -40,7 +40,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
   bool _isLoading = false;
   double? _selectedLat;
   double? _selectedLng;
-  bool _showMapPicker = false;
+  bool _showLocationInput = false;
 
   Future<void> _pickImage() async {
     final result = await FilePicker.platform.pickFiles(
@@ -55,16 +55,8 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     }
   }
 
-  void _selectLocationOnMap() {
-    setState(() => _showMapPicker = true);
-  }
-
-  void _onMapClick(double lat, double lng) {
-    setState(() {
-      _selectedLat = lat;
-      _selectedLng = lng;
-      _showMapPicker = false;
-    });
+  void _selectLocationManually() {
+    setState(() => _showLocationInput = true);
   }
 
   Future<void> _submitIssue() async {
@@ -143,7 +135,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                 ],
               ),
             ),
-            if (_showMapPicker) _buildMapPicker(),
+            if (_showLocationInput) _buildLocationInput(),
           ],
         ),
       ),
@@ -483,7 +475,7 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
               MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
-                  onTap: _selectLocationOnMap,
+                  onTap: _selectLocationManually,
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
@@ -496,10 +488,10 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.location_searching_rounded, color: Colors.white, size: 20),
+                        Icon(Icons.location_on_rounded, color: Colors.white, size: 20),
                         SizedBox(width: 8),
                         Text(
-                          _selectedLat == null ? 'Select Location on Map' : 'Change Location',
+                          _selectedLat == null ? 'Enter Location Coordinates' : 'Change Location',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -641,119 +633,135 @@ class _ReportIssueScreenState extends State<ReportIssueScreen> {
     );
   }
 
-  Widget _buildMapPicker() {
+  Widget _buildLocationInput() {
+    final latController = TextEditingController(text: _selectedLat?.toString() ?? '');
+    final lngController = TextEditingController(text: _selectedLng?.toString() ?? '');
+    
     return Container(
       color: Colors.black.withOpacity(0.5),
       child: Center(
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
-          height: MediaQuery.of(context).size.height * 0.8,
+          width: 500,
+          padding: EdgeInsets.all(32),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.white.withOpacity(0.95), Colors.white.withOpacity(0.9)],
-            ),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 40, offset: Offset(0, 20)),
             ],
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: Column(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  Container(
-                    padding: EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Select Location on Map',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF1E293B),
-                          ),
-                        ),
-                        Spacer(),
-                        IconButton(
-                          icon: Icon(Icons.close_rounded, color: Color(0xFF64748B)),
-                          onPressed: () => setState(() => _showMapPicker = false),
-                        ),
-                      ],
+                  Icon(Icons.location_on_rounded, color: Color(0xFF4F46E5), size: 24),
+                  SizedBox(width: 12),
+                  Text(
+                    'Enter Location Coordinates',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
                     ),
                   ),
+                  Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.close_rounded, color: Color(0xFF64748B)),
+                    onPressed: () => setState(() => _showLocationInput = false),
+                  ),
+                ],
+              ),
+              SizedBox(height: 24),
+              Text(
+                'Latitude',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF475569),
+                ),
+              ),
+              SizedBox(height: 8),
+              TextField(
+                controller: latController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  hintText: 'e.g., 28.6139',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  contentPadding: EdgeInsets.all(16),
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'Longitude',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF475569),
+                ),
+              ),
+              SizedBox(height: 8),
+              TextField(
+                controller: lngController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: InputDecoration(
+                  hintText: 'e.g., 77.2090',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  contentPadding: EdgeInsets.all(16),
+                ),
+              ),
+              SizedBox(height: 24),
+              Row(
+                children: [
                   Expanded(
-                    child: GestureDetector(
-                      onTapDown: (details) {
-                        final RenderBox box = context.findRenderObject() as RenderBox;
-                        final localPosition = box.globalToLocal(details.globalPosition);
-                        final lat = 28.6139 + (localPosition.dy / 1000);
-                        final lng = 77.2090 + (localPosition.dx / 1000);
-                        _onMapClick(lat, lng);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFFF3F4F6), Color(0xFFE5E7EB)],
-                          ),
-                        ),
-                        child: Stack(
-                          children: [
-                            CustomPaint(
-                              size: Size.infinite,
-                              painter: GridPainter(),
-                            ),
-                            Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.location_on_rounded, size: 64, color: Color(0xFF4F46E5)),
-                                  SizedBox(height: 16),
-                                  Text(
-                                    'Click anywhere to select location',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color(0xFF64748B),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                    child: ElevatedButton(
+                      onPressed: () => setState(() => _showLocationInput = false),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFF1F5F9),
+                        foregroundColor: Color(0xFF64748B),
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
+                      child: Text('Cancel'),
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final lat = double.tryParse(latController.text);
+                        final lng = double.tryParse(lngController.text);
+                        if (lat != null && lng != null) {
+                          setState(() {
+                            _selectedLat = lat;
+                            _selectedLng = lng;
+                            _showLocationInput = false;
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Please enter valid coordinates'),
+                              backgroundColor: Color(0xFFEF4444),
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF4F46E5),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: Text('Confirm'),
                     ),
                   ),
                 ],
               ),
-            ),
+            ],
           ),
         ),
       ),
     );
   }
-}
-
-class GridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Color(0xFFD1D5DB).withOpacity(0.3)
-      ..strokeWidth = 1;
-
-    for (double i = 0; i < size.width; i += 50) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
-    }
-    for (double i = 0; i < size.height; i += 50) {
-      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

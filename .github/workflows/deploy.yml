@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   deploy:
@@ -22,7 +24,11 @@ jobs:
     - run: flutter pub get
     - run: flutter build web --release --base-href "/citizen_issue_system_web/"
     
+    - name: List build files
+      run: ls -la build/web/
+    
     - uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./build/web
+        force_orphan: true

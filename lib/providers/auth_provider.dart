@@ -13,15 +13,32 @@ class AuthProvider extends ChangeNotifier {
   bool get isAuthenticated => _currentUser != null;
 
   AuthProvider() {
-    _authService.authStateChanges.listen((User? user) async {
-      if (user != null) {
-        _currentUser = await _authService.getUserData(user.uid);
-      } else {
-        _currentUser = null;
+    _initAuth();
+  }
+
+  Future<void> _initAuth() async {
+    try {
+      _authService.authStateChanges.listen((User? user) async {
+        if (user != null) {
+          _currentUser = await _authService.getUserData(user.uid);
+        } else {
+          _currentUser = null;
+        }
+        _isLoading = false;
+        notifyListeners();
+      });
+      
+      // Timeout fallback
+      await Future.delayed(const Duration(seconds: 3));
+      if (_isLoading) {
+        _isLoading = false;
+        notifyListeners();
       }
+    } catch (e) {
+      print('Auth initialization error: $e');
       _isLoading = false;
       notifyListeners();
-    });
+    }
   }
 
   Future<bool> signIn(String email, String password) async {
@@ -53,17 +70,6 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       print('SignOut error: $e');
-    }
-  }
-
-  Future<bool> signInWithGoogle() async {
-    try {
-      _currentUser = await _authService.signInWithGoogle();
-      notifyListeners();
-      return _currentUser != null;
-    } catch (e) {
-      print('AuthProvider Google signIn error: $e');
-      return false;
     }
   }
 }

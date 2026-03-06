@@ -12,15 +12,20 @@ import 'screens/user/my_issues_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: 'AIzaSyCoe-K-o-_Cd4cg7lyT5Az5x1dEvfE0O2E',
-      appId: '1:1033164091742:web:2d5e84d09f763cb3191fcf',
-      messagingSenderId: '1033164091742',
-      projectId: 'citizen-issue-system-web',
-      storageBucket: 'citizen-issue-system-web.firebasestorage.app',
-    ),
-  );
+  try {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: 'AIzaSyCoe-K-o-_Cd4cg7lyT5Az5x1dEvfE0O2E',
+        authDomain: 'citizen-issue-system-web.firebaseapp.com',
+        appId: '1:1033164091742:web:2d5e84d09f763cb3191fcf',
+        messagingSenderId: '1033164091742',
+        projectId: 'citizen-issue-system-web',
+        storageBucket: 'citizen-issue-system-web.firebasestorage.app',
+      ),
+    );
+  } catch (e) {
+    print('Firebase initialization error: $e');
+  }
   runApp(const MyApp());
 }
 
